@@ -1,65 +1,144 @@
-
-'use strict'
-
-const request = require('supertest')
-const { join } = require('path')
-const error = require('../')
-const Koa = require('koa')
+const request = require('supertest');
+const { join } = require('path');
+const KoaError = require('../dist/index').default;
+const Koa = require('koa');
 
 describe('koa-error', () => {
-  it('default', done => {
-    const app = new Koa()
+  it('default html error template', (done) => {
+    const app = new Koa();
 
-    app.use(error())
-
-    app.use(function (ctx) {
-      foo() // eslint-disable-line
-    })
-
-    request(app.listen())
-      .get('/')
-      .expect(500)
-      .expect('Content-Type', 'text/html; charset=utf-8')
-      .expect(/<title>Error - 500<\/title>/)
-      .end(done)
-  })
-
-  it('use ejs', done => {
-    const app = new Koa()
-
-    app.use(error({
-      template: join(__dirname, '/error.ejs'),
-      engine: 'ejs'
-    }))
+    app.use(KoaError());
 
     app.use(function (ctx) {
       foo() // eslint-disable-line
-    })
+    });
 
     request(app.listen())
       .get('/')
       .expect(500)
       .expect('Content-Type', 'text/html; charset=utf-8')
-      .expect(/<title>Error by ejs - 500<\/title>/)
-      .end(done)
-  })
+      .expect(/<title>Error - 500([\s]*?)<\/title>/)
+      .end(done);
+  });
 
-  it('ignores bad statuses', done => {
-    const app = new Koa()
+  it('custom html error template', (done) => {
+    const app = new Koa();
 
-    app.use(error())
+    app.use(
+      KoaError({
+        template: `
+          <!DOCTYPE html>
+          <html>
+            <head>
+            <title>Error - <%- status %></title>
+            </head>
+            <body><%- error %></body>
+          </html>`,
+        accepts: ['html'],
+      }),
+    );
 
     app.use(function (ctx) {
-      const error = new Error('I have status')
-      error.status = 'This is broke'
-      throw error
-    })
+      foo() // eslint-disable-line
+    });
 
     request(app.listen())
       .get('/')
       .expect(500)
       .expect('Content-Type', 'text/html; charset=utf-8')
-      .expect(/<title>Error - 500<\/title>/)
-      .end(done)
-  })
-})
+      .expect(/<title>Error - 500([\s]*?)<\/title>/)
+      .end(done);
+  });
+
+  it('text error', (done) => {
+    const app = new Koa();
+
+    app.use(
+      KoaError({
+        accepts: ['text'],
+      }),
+    );
+
+    app.use(function (ctx) {
+      foo() // eslint-disable-line
+    });
+
+    request(app.listen())
+      .get('/')
+      .expect(500)
+      .expect('Content-Type', 'text/plain; charset=utf-8')
+      .expect('Internal Server Error')
+      .end(done);
+  });
+
+  it('json error', (done) => {
+    const app = new Koa();
+
+    app.use(
+      KoaError({
+        accepts: ['json'],
+      }),
+    );
+
+    app.use(function (ctx) {
+      foo() // eslint-disable-line
+    });
+
+    request(app.listen())
+      .get('/')
+      .expect(500)
+      .expect('Content-Type', 'application/json; charset=utf-8')
+      .expect('{"error":"Internal Server Error"}')
+      .end(done);
+  });
+
+  it('json error', (done) => {
+    const app = new Koa();
+
+    app.use(
+      KoaError({
+        accepts: ['json'],
+        env: 'development',
+      }),
+    );
+
+    app.use(function (ctx) {
+      foo() // eslint-disable-line
+    });
+
+    request(app.listen())
+      .get('/')
+      .expect(500)
+      .expect('Content-Type', 'application/json; charset=utf-8')
+      // .expect(JSON.parse())
+      .expect({ error: 'foo is not defined', originalError: {} })
+      // .expect((response) => {
+      //   console.log(response);
+      //   const error = JSON.parse(response.body);
+
+      //   if (!error) throw new Error('invalid error');
+      //   if (!error.error !== 'foo is not defined') throw new Error('wrong error message');
+      //   if (!error.stack) throw new Error('wrong error stack');
+      // })
+      .end(done);
+  });
+
+  it('ignores bad statuses', (done) => {
+    const app = new Koa();
+
+    app.use(KoaError());
+
+    app.use(function (ctx) {
+      const error = new Error('I have status');
+      error.status = 'This is broke';
+      throw error;
+    });
+
+    request(app.listen())
+      .get('/')
+      .expect(500)
+      .expect('Content-Type', 'text/html; charset=utf-8')
+      .expect(/<title>Error - 500([\s]*?)<\/title>/)
+      .end(done);
+  });
+});
