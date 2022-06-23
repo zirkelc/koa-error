@@ -1,3 +1,5 @@
+[![npm version](https://badge.fury.io/js/koa-error-middleware.svg)](https://badge.fury.io/js/koa-error-middleware)
+
 > This package is a fork of the original [koa-error](https://github.com/koajs/error) package rewritten in TypeScript and reduced to a single dependency. 
 
 # koa-error-middleware
