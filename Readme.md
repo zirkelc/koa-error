@@ -32,13 +32,13 @@ See [example/index.ts](example/index.ts) for a full example.
 
  - `template`: content of error template with placeholders, default: [error.html](error.html) 
  - `env` force a NODE_ENV, default: `development`
- - `accepts` mimetypes passed to [ctx.accepts](https://github.com/koajs/koa/blob/master/docs/api/request.md#requestacceptstypes), default: `[ 'html', 'text', 'json' ]`
+ - `accepts` mimetypes passed to [ctx.accepts](https://github.com/koajs/koa/blob/master/docs/api/request.md#requestacceptstypes), default: `['html', 'text', 'json']`
 
 ### Differences to koa-error
 The following changes were made to the original implementation of [koa-error](https://github.com/koajs/error).
 
- - `template`: koa-error expected a path to a template file that it would load from the file system. This package expects to receive content of the template file. The calling package can decide if it loads the template file from the file system or or it embeds it directly into its code.
- - `engine`: koa-error supported multiple template engines via [consolidate](https://github.com/tj/consolidate.js). This option and dependency was removed in favor of supporting only one template engine [lodash.template](https://www.npmjs.com/package/lodash.template).
+ - `template`: koa-error expected a path to a template file which it would then load from the file system. This package expects the contents of the template file. The calling package can decide whether to load the template file from the file system or embed it directly in its code.
+ - `engine`: koa-error supported multiple template engines via [consolidate](https://github.com/tj/consolidate.js). This option and dependency has been removed in favor of supporting only one template engine [lodash.template](https://www.npmjs.com/package/lodash.template).
 
 ## Custom template
 
