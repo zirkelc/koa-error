@@ -1,6 +1,8 @@
-# koa-error
+> This package is a fork of the original [koa-error](https://github.com/koajs/error) package rewritten in TypeScript and reduced to a single dependency. 
 
-  Error response middleware for koa supporting:
+# koa-error-middleware
+
+Error response middleware for Koa supporting:
 
 - text
 - json
@@ -9,21 +11,38 @@
 ## Installation
 
 ```js
-$ npm install koa-error
+$ npm install koa-error-middleware
 ```
+
+## Usage
+```js
+import Koa from 'koa';
+import KoaError from 'koa-error-middleware';
+
+const app = new Koa();
+
+app.use(KoaError());
+
+app.listen(3000);
+```
+
+See [example/index.ts](example/index.ts) for a full example.
 
 ## Options
 
- - `template` path to template written with your template engine, default: `./error.html`
- - `engine` template engine name passed to [consolidate](https://github.com/tj/consolidate.js), default: `lodash`
- - `cache` cached compiled functions, default: `NODE_ENV != 'development'`
+ - `template`: content of error template with placeholders, default: [error.html](error.html) 
  - `env` force a NODE_ENV, default: `development`
  - `accepts` mimetypes passed to [ctx.accepts](https://github.com/koajs/koa/blob/master/docs/api/request.md#requestacceptstypes), default: `[ 'html', 'text', 'json' ]`
 
-## Custom templates
+### Differences to koa-error
+The following changes were made to the original implementation of [koa-error](https://github.com/koajs/error).
 
-  By using the `template` option you can override the bland default template,
-  with the following available local variables:
+ - `template`: koa-error expected a path to a template file that it would load from the file system. This package expects to receive content of the template file. The calling package can decide if it loads the template file from the file system or or it embeds it directly into its code.
+ - `engine`: koa-error supported multiple template engines via [consolidate](https://github.com/tj/consolidate.js). This option and dependency was removed in favor of supporting only one template engine [lodash.template](https://www.npmjs.com/package/lodash.template).
+
+## Custom template
+
+By using the `template` option you can override the bland default template, with the following available local variables:
 
   - `env`
   - `ctx`
@@ -34,71 +53,52 @@ $ npm install koa-error
   - `status`
   - `code`
 
-Here are some examples:
+For more information see the [Lodash.template](https://lodash.com/docs/4.17.15#template) documentation.
 
-### Pug (formerly jade)
-
-```js
-app.use(error({
-  engine: 'pug',
-  template: __dirname + '/error.pug'
-}));
-```
-
-```jade
-doctype html
-html
-  head
-    title= 'Error - ' + status
-  body
-    #error
-      h1 Error
-      p Looks like something broke!
-      if env == 'development'
-        h2 Message:
-        pre: code= error
-        h2 Stack:
-        pre: code= stack
-```
-
-### Nunjucks
+### Default template
 
 ```js
-app.use(error({
-  engine: 'nunjucks',
-  template: __dirname + '/error.njk'
-}));
+app.use(KoaError());
 ```
 
 ```html
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Error - {{status}}</title>
-  </head>
-  <body>
-    <div id="error">
-      <h1>Error</h1>
+<head>
+  <title>Error - <%- status %>
+  </title>
+  <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0">
+</head>
+<body>
+  <div id="error">
+    <h1>Error</h1>
     <p>Looks like something broke!</p>
-    {% if env == 'development' %}
+    <% if (env==='development' ) { %>
+      <h2>Original error</h2>
+      <pre>
+        <code>
+          <%- JSON.stringify(originalError, null, '  ') %>
+        </code>
+      </pre>
+
       <h2>Message:</h2>
       <pre>
         <code>
-{{error}}
+          <%- error %>
         </code>
       </pre>
       <h2>Stack:</h2>
       <pre>
         <code>
-{{stack}}
+          <%- stack %>
         </code>
       </pre>
-    {% endif %}
-    </div>
-  </body>
+    <% } %>
+  </div>
+</body>
 </html>
 ```
 
 ## License
 
-  MIT
+MIT

@@ -6,11 +6,8 @@
     "outDir": "dist",
     "declaration": true,
   },
-  // include src and test folder to enable type checking
-  // only the src folder will be compiled to dist and published as package
   "include": [
     "index.ts",
-    "test/**/*.ts"
   ],
   "exclude": [
     "node_modules/**/*",

@@ -1,13 +1,15 @@
 {
-  "name": "koa-error",
-  "description": "Error reponses (text, json, html) for koa",
-  "repository": "koajs/error",
+  "name": "koa-error-middleware",
+  "description": "Error reponses (text, json, html) for Koa",
+  "repository": "https://github.com/zirkelc/koa-error",
   "version": "3.2.0",
   "scripts": {
     "build": "tsc && copyfiles -f ./error.html ./dist",
     "lint": "eslint --fix .",
     "pretest": "npm run build",
-    "test": "NODE_ENV=test mocha --reporter spec --exit"
+    "test": "NODE_ENV=test mocha --reporter spec --exit",
+    "predev": "npm run build",
+    "dev": "NODE_ENV=development ts-node ./example/index.ts"
   },
   "keywords": [
     "koa",
@@ -16,8 +18,7 @@
     "page"
   ],
   "files": [
-    "dist/index.js",
-    "dist/error.html"
+    "dist/*"
   ],
   "dependencies": {
     "lodash.template": "^4.5.0"
@@ -32,11 +33,11 @@
     "eslint": "^8.3.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.0.0",
-    "istanbul": "^0.4.5",
     "koa": "^2.4.1",
     "mocha": "^10.0.0",
     "prettier": "^2.6.0",
     "supertest": "^6.2.3",
+    "ts-node": "^10.8.1",
     "typescript": "^4.7.2"
   },
   "license": "MIT"

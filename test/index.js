@@ -71,7 +71,7 @@ describe('koa-error', () => {
       .end(done);
   });
 
-  it('json error', (done) => {
+  it('json error in production', (done) => {
     const app = new Koa();
 
     app.use(
@@ -92,7 +92,7 @@ describe('koa-error', () => {
       .end(done);
   });
 
-  it('json error', (done) => {
+  it('json error in development', (done) => {
     const app = new Koa();
 
     app.use(
@@ -106,21 +106,7 @@ describe('koa-error', () => {
       foo() // eslint-disable-line
     });
 
-    request(app.listen())
-      .get('/')
-      .expect(500)
-      .expect('Content-Type', 'application/json; charset=utf-8')
-      // .expect(JSON.parse())
-      .expect({ error: 'foo is not defined', originalError: {} })
-      // .expect((response) => {
-      //   console.log(response);
-      //   const error = JSON.parse(response.body);
-
-      //   if (!error) throw new Error('invalid error');
-      //   if (!error.error !== 'foo is not defined') throw new Error('wrong error message');
-      //   if (!error.stack) throw new Error('wrong error stack');
-      // })
-      .end(done);
+    request(app.listen()).get('/').expect(500).expect('Content-Type', 'application/json; charset=utf-8').end(done);
   });
 
   it('ignores bad statuses', (done) => {
