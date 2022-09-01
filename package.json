@@ -4,7 +4,7 @@
   "repository": "https://github.com/zirkelc/koa-error",
   "version": "4.0.0",
   "scripts": {
-    "build": "tsc && copyfiles -f ./error.html ./dist",
+    "build": "tsc",
     "lint": "eslint --fix .",
     "pretest": "npm run build",
     "test": "NODE_ENV=test mocha --reporter spec --exit",

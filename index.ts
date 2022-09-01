@@ -1,7 +1,6 @@
 import http from 'http';
 import Koa from 'koa';
 import compileTemplate from 'lodash.template';
-import { readFile } from 'fs/promises';
 
 type Options = {
   template?: string;
@@ -20,6 +19,44 @@ interface HttpError extends Error {
     | undefined;
   [key: string]: any;
 }
+
+const defaultTemplate = `
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Error - <%- status %>
+  </title>
+  <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0">
+</head>
+<body>
+  <div id="error">
+    <h1>Error</h1>
+    <p>Looks like something broke!</p>
+    <% if (env==='development' ) { %>
+      <h2>Original error</h2>
+      <pre>
+        <code>
+          <%- JSON.stringify(originalError, null, '  ') %>
+        </code>
+      </pre>
+
+      <h2>Message:</h2>
+      <pre>
+        <code>
+          <%- error %>
+        </code>
+      </pre>
+      <h2>Stack:</h2>
+      <pre>
+        <code>
+          <%- stack %>
+        </code>
+      </pre>
+      <% } %>
+  </div>
+</body>
+</html>
+`;
 
 /**
  * `koa-error` middleware for handling errors in Koa applications.
@@ -40,7 +77,7 @@ export default function error(options?: Options): Koa.Middleware {
     } catch (e) {
       const accepts = options?.accepts || ['html', 'text', 'json'];
       const env = options?.env || process.env.NODE_ENV || 'development';
-      const template = options?.template || (await readFile(__dirname + '/error.html', 'utf8'));
+      const template = options?.template || defaultTemplate;
 
       const err = e as HttpError;
       ctx.status = typeof err.status === 'number' ? err.status : 500;
